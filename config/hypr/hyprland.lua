@@ -1,5 +1,5 @@
 -- #######################################################################################
--- HYPRLAND LUA CONFIGURATION - GRUVBOX THEME
+-- CYBRSPACE // HYPRLAND LUA CONFIGURATION
 -- #######################################################################################
 
 ------------------
@@ -18,7 +18,7 @@ hl.monitor({
 local terminal = "command -v kitty >/dev/null 2>&1 && kitty || alacritty"
 local fileManager = "command -v yazi >/dev/null 2>&1 && (command -v kitty >/dev/null 2>&1 && kitty -e yazi || alacritty -e yazi) || nautilus"
 local guiFileManager = "nautilus"
-local menu = "rofi -show drun -theme ~/.config/rofi/gruvbox.rasi"
+local menu = "rofi -show drun -theme ~/.config/rofi/cybrspace.rasi"
 local screenshotArea = "~/.config/hypr/scripts/screenshot.sh area"
 local screenshotFull = "~/.config/hypr/scripts/screenshot.sh full"
 local lockscreen = "hyprlock"

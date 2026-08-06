@@ -18,7 +18,7 @@ while IFS= read -r wall; do
 done <<< "$WALLS"
 
 # Prompt user via Rofi
-CHOSEN=$(echo -e "$MENU" | sed '/^$/d' | rofi -dmenu -i -p "🖼️ Choose Wallpaper" -theme ~/.config/rofi/gruvbox.rasi)
+CHOSEN=$(echo -e "$MENU" | sed '/^$/d' | rofi -dmenu -i -p "🖼️ Choose Wallpaper" -theme ~/.config/rofi/cybrspace.rasi)
 
 if [ -n "$CHOSEN" ]; then
     TARGET="$WALLPAPERS_DIR/$CHOSEN"

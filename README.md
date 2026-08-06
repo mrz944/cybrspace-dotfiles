@@ -1,6 +1,15 @@
-# 🌲 Gruvbox Hyprland Desktop Environment & Installer
+# 🌌 CYBRSPACE // Modern Hyprland Desktop Environment
 
-A complete, production-ready **Gruvbox Dark** desktop environment for **Hyprland** (v0.56.1+ with native **Lua configuration**), featuring macOS-style window controls, Waybar status bar, SwayNC notification center, Rofi application launcher, terminal configurations, power optimizations, and automated installation scripts.
+```text
+  ██████╗██╗   ██╗██████╗ ██████╗ ███████╗██████╗  █████╗  ██████╗███████╗
+ ██╔════╝╚██╗ ██╔╝██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝██╔════╝
+ ██║      ╚████╔╝ ██████╔╝██████╔╝███████╗██████╔╝███████║██║     █████╗  
+ ██║       ╚██╔╝  ██╔══██╗██╔══██╗╚════██║██╔═══╝ ██╔══██║██║     ██╔══╝  
+ ╚██████╗   ██║   ██████╔╝██║  ██║███████║██║     ██║  ██║╚██████╗███████╗
+  ╚═════╝   ╚═╝   ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝
+```
+
+> **CYBRSPACE** is a modern, high-performance desktop environment crafted for **Hyprland** (v0.56.1+ with native **Lua configuration**), featuring macOS-style traffic-light window controls, Waybar status bar, SwayNC notification center, Rofi application launcher, power optimizations, and an automated installer.
 
 ---
 
@@ -11,7 +20,7 @@ A complete, production-ready **Gruvbox Dark** desktop environment for **Hyprland
   - 🔴 **Red**: Close active window (`killactive`)
   - 🟡 **Yellow**: Toggle floating / tiled layout (`togglefloating`)
   - 🟢 **Green**: Maximize / fullscreen (`fullscreen 1`)
-- **Gruvbox Dark Aesthetic**: Handcrafted color palette across Waybar, SwayNC, Rofi, Kitty, Alacritty, Yazi, and Btop.
+- **Refined Dark Palette**: Handcrafted warm dark theme across Waybar, SwayNC, Rofi, Kitty, Alacritty, Yazi, and Btop.
 - **Dynamic Tiling & Floating**: Clean default dynamic tiling with automatic floating for utility dialogs (`pavucontrol`, `opensnitch`, file choosers).
 - **Power Optimization Suite**: Custom `syspower` utility and PCIe ASPM / CPU EPP energy-saving tuners for AMD APUs / Ryzen systems.
 - **Dynamic Scaling & Wallpapers**: On-the-fly display scale adjustment (<kbd>SUPER</kbd>+<kbd>CTRL</kbd>+<kbd>+</kbd>/<kbd>-</kbd>) and wallpaper rotators with `hyprpaper`.
@@ -21,7 +30,7 @@ A complete, production-ready **Gruvbox Dark** desktop environment for **Hyprland
 ## 📁 Repository Layout
 
 ```
-hyprland-dotfiles/
+cybrspace/
 ├── install.sh                  # Interactive master installer script
 ├── setup-power.sh              # AMD APU / CPU power optimization suite
 ├── packages.txt                # Comprehensive package dependency manifest
@@ -34,21 +43,21 @@ hyprland-dotfiles/
 │   │   ├── hypridle.conf       # Idle daemon configuration
 │   │   ├── hyprpaper.conf      # Wallpaper daemon configuration
 │   │   └── scripts/            # Shell utilities (autostart, screenshots, scaling, wallpapers)
-│   ├── waybar/                 # Waybar status bar configuration & Gruvbox CSS
+│   ├── waybar/                 # Waybar status bar configuration & CSS
 │   ├── swaync/                 # Sway Notification Center configuration & CSS
-│   ├── rofi/                   # Rofi application launcher & Gruvbox theme
+│   ├── rofi/                   # Rofi application launcher & theme
 │   ├── kitty/                  # Kitty terminal configuration
 │   ├── alacritty/              # Alacritty terminal configuration
 │   ├── yazi/                   # Yazi terminal file manager configuration
 │   ├── btop/                   # Btop system monitor theme
 │   └── nwg-dock-hyprland/      # Floating dock CSS styling
-├── wallpapers/                 # Curated Gruvbox wallpapers
+├── wallpapers/                 # Curated high-resolution wallpapers
 └── README.md
 ```
 
 ---
 
-## ⌨️ Keybindings
+## ⌨️ Keybindings Quick Reference
 
 | Shortcut | Action |
 |---|---|
@@ -78,8 +87,8 @@ hyprland-dotfiles/
 Run the interactive installer to set up packages, configurations, plugins, and wallpapers:
 
 ```bash
-git clone https://github.com/<your-username>/hyprland-dotfiles.git
-cd hyprland-dotfiles
+git clone https://github.com/mrz944/cachyos_hypr_dotfiles.git cybrspace
+cd cybrspace
 chmod +x install.sh setup-power.sh
 ./install.sh
 ```

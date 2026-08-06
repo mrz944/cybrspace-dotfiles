@@ -13,4 +13,4 @@ configuration {
     me-accept-entry: "MousePrimary";
 }
 
-@theme "~/.config/rofi/gruvbox.rasi"
+@theme "~/.config/rofi/cybrspace.rasi"

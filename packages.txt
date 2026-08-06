@@ -1,5 +1,5 @@
 # ==============================================================================
-# Hyprland Gruvbox Desktop Environment - Package Manifest
+# CYBRSPACE Desktop Environment - Package Manifest
 # ==============================================================================
 
 # Core Compositor & Hyprland Ecosystem
