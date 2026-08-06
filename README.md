@@ -87,8 +87,8 @@ cybrspace/
 Run the interactive installer to set up packages, configurations, plugins, and wallpapers:
 
 ```bash
-git clone https://github.com/mrz944/cachyos_hypr_dotfiles.git cybrspace
-cd cybrspace
+git clone https://github.com/mrz944/cybrspace-dotfiles.git cybrspace-dotfiles
+cd cybrspace-dotfiles
 chmod +x install.sh setup-power.sh
 ./install.sh
 ```
