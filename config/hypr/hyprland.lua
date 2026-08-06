@@ -233,8 +233,8 @@ hl.bind("XF86AudioPlay",        hl.dsp.exec_cmd("playerctl play-pause"),        
 hl.bind("XF86AudioPrev",        hl.dsp.exec_cmd("playerctl previous"),                             { locked = true })
 
 -- Display Scaling shortcuts
-hl.bind(mainMod .. " + CTRL + equal", hl.dsp.exec_cmd("/home/cyberdev/.config/hypr/scripts/adjust-scale.sh +0.1"))
-hl.bind(mainMod .. " + CTRL + minus", hl.dsp.exec_cmd("/home/cyberdev/.config/hypr/scripts/adjust-scale.sh -0.1"))
+hl.bind(mainMod .. " + CTRL + equal", hl.dsp.exec_cmd("/home/cyberdev/.config/hypr/scripts/adjust-scale.sh up"))
+hl.bind(mainMod .. " + CTRL + minus", hl.dsp.exec_cmd("/home/cyberdev/.config/hypr/scripts/adjust-scale.sh down"))
 
 --------------------------------
 ---- WINDOW RULES & LAYERS -----
@@ -272,12 +272,12 @@ hl.config({
             bar_text_size = 10,
             bar_text_align = "center",
             bar_buttons_alignment = "left",
-            bar_part_of_window = false,
+            bar_part_of_window = true,
             bar_precedence_over_border = true,
             bar_padding = 10,
             bar_button_padding = 6,
             icon_on_hover = false,
-            on_double_click = "hyprctl dispatch 'hl.dsp.window.fullscreen()'",
+            on_double_click = "hyprctl dispatch fullscreen 1",
             ["col.text"] = "rgb(ebdbb2)",
         }
     }
@@ -291,7 +291,7 @@ if hl.plugin and hl.plugin.hyprbars and hl.plugin.hyprbars.add_button then
         fg_color = "rgb(282828)",
         size = 10,
         icon = "",
-        action = "hyprctl dispatch 'hl.dsp.window.close()'",
+        action = "hyprctl dispatch killactive",
     })
     -- Yellow: Float / Tile
     hl.plugin.hyprbars.add_button({
@@ -299,7 +299,7 @@ if hl.plugin and hl.plugin.hyprbars and hl.plugin.hyprbars.add_button then
         fg_color = "rgb(282828)",
         size = 10,
         icon = "",
-        action = "hyprctl dispatch 'hl.dsp.window.float()'",
+        action = "hyprctl dispatch togglefloating",
     })
     -- Green: Fullscreen / Maximize
     hl.plugin.hyprbars.add_button({
@@ -307,7 +307,7 @@ if hl.plugin and hl.plugin.hyprbars and hl.plugin.hyprbars.add_button then
         fg_color = "rgb(282828)",
         size = 10,
         icon = "",
-        action = "hyprctl dispatch 'hl.dsp.window.fullscreen()'",
+        action = "hyprctl dispatch fullscreen 1",
     })
 end
 

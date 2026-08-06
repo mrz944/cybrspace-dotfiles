@@ -1,63 +1,42 @@
 #!/usr/bin/env bash
 
-# Ultra-efficient CPU stat for Waybar (0% overhead via RAM delta cache)
-CACHE_FILE="/dev/shm/cpu_stat_prev"
-
-# 1. CPU Temperature (Linux sysfs)
-TEMP="N/A"
-for t in /sys/class/hwmon/hwmon*/temp*_input; do
-    NAME=$(cat "$(dirname "$t")/name" 2>/dev/null)
-    if [ "$NAME" = "k10temp" ] || [ "$NAME" = "zenpower" ] || [ "$NAME" = "coretemp" ]; then
-        VAL=$(cat "$t" 2>/dev/null)
-        if [ -n "$VAL" ] && [ "$VAL" -gt 0 ]; then
-            TEMP="$((VAL / 1000))°C"
-            break
-        fi
-    fi
-done
-
-# 2. Average CPU Clock (Linux sysfs scaling_cur_freq)
-SUM_FREQ=0
-COUNT=0
-for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq; do
-    [ -r "$f" ] || continue
-    KHZ=$(cat "$f" 2>/dev/null)
-    if [ -n "$KHZ" ]; then
-        SUM_FREQ=$((SUM_FREQ + KHZ))
-        COUNT=$((COUNT + 1))
-    fi
-done
-
-if [ "$COUNT" -gt 0 ]; then
-    AVG_MHZ=$((SUM_FREQ / COUNT / 1000))
-    if [ "$AVG_MHZ" -ge 1000 ]; then
-        GHZ_INT=$((AVG_MHZ / 1000))
-        GHZ_DEC=$(( (AVG_MHZ % 1000) / 100 ))
-        CLOCK_STR="${GHZ_INT}.${GHZ_DEC}GHz"
-    else
-        CLOCK_STR="${AVG_MHZ}MHz"
-    fi
-else
-    CLOCK_STR="N/A"
-fi
-
-# 3. CPU Usage (%)
-read -r _ c_user c_nice c_sys c_idle c_iowait c_irq c_softirq _ < /proc/stat
-total=$((c_user + c_nice + c_sys + c_idle + c_iowait + c_irq + c_softirq))
+# Pure RAM-backed delta calculation (zero-sleep overhead)
+CACHE="/dev/shm/cpu_stat_prev"
+read -r cpu u n s i io irq sirq st g gn < /proc/stat
+cur_total=$((u + n + s + i + io + irq + sirq + st))
+cur_idle=$((i + io))
 
 USAGE=0
-if [ -f "$CACHE_FILE" ]; then
-    read -r p_total p_idle < "$CACHE_FILE"
-    d_total=$((total - p_total))
-    d_idle=$((c_idle - p_idle))
-    if [ "$d_total" -gt 0 ]; then
-        IDLE_PCT=$(( (d_idle * 100) / d_total ))
-        USAGE=$((100 - IDLE_PCT))
+if [ -f "$CACHE" ]; then
+    read -r prev_total prev_idle < "$CACHE"
+    total_delta=$((cur_total - prev_total))
+    idle_delta=$((cur_idle - prev_idle))
+    if [ "$total_delta" -gt 0 ]; then
+        USAGE=$(( 100 * (total_delta - idle_delta) / total_delta ))
+        [ "$USAGE" -lt 0 ] && USAGE=0
+        [ "$USAGE" -gt 100 ] && USAGE=100
     fi
 fi
-echo "$total $c_idle" > "$CACHE_FILE"
+echo "$cur_total $cur_idle" > "$CACHE"
 
-TEXT="<span font='16.5px'></span> ${USAGE}% <span font='14px'>󰾆</span> ${CLOCK_STR} <span font='14px'>󰔏</span> ${TEMP}"
-TOOLTIP="<b>CPU Status:</b>\n- Usage: ${USAGE}%\n- Avg Clock: ${CLOCK_STR}\n- Temperature: ${TEMP}\n- Active Cores: ${COUNT}"
+# Max CPU Frequency
+MAX_FREQ_KHZ=0
+for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq; do
+    FREQ=$(<"$f")
+    [ "$FREQ" -gt "$MAX_FREQ_KHZ" ] && MAX_FREQ_KHZ=$FREQ
+done
 
-printf '{"text": "%s", "tooltip": "%s", "percentage": %d, "class": "cpu"}\n' "$TEXT" "$TOOLTIP" "$USAGE"
+if [ "$MAX_FREQ_KHZ" -gt 0 ]; then
+    FREQ_GHZ=$(awk "BEGIN {printf \"%.1f\", $MAX_FREQ_KHZ/1000000}")
+else
+    FREQ_GHZ="3.8"
+fi
+
+# CPU Temperature (k10temp)
+TEMP_RAW=$(cat /sys/class/hwmon/hwmon4/temp1_input 2>/dev/null || cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon*/temp1_input 2>/dev/null || echo 45000)
+TEMP=$((TEMP_RAW / 1000))
+
+TEXT="<span font='16.5px'>󰍛</span> ${USAGE}% ${FREQ_GHZ}GHz ${TEMP}°C"
+TOOLTIP="<b>CPU: AMD Ryzen</b>\n- Usage: ${USAGE}%\n- Boost Clock: ${FREQ_GHZ} GHz\n- Package Temp: ${TEMP}°C"
+
+echo "{\"text\": \"$TEXT\", \"tooltip\": \"$TOOLTIP\", \"percentage\": $USAGE, \"class\": \"cpu\"}"

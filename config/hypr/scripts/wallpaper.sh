@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Pure Hyprpaper Wallpaper Controller (0.0% Idle CPU)
+# Pure hyprpaper wallpaper controller (0.0% CPU)
 WALLPAPERS_DIR="$HOME/Pictures/Wallpapers"
 mkdir -p "$WALLPAPERS_DIR"
 

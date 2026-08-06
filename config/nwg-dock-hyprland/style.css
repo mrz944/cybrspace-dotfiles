@@ -1,0 +1,32 @@
+/* Gruvbox Dark Styling for nwg-dock-hyprland */
+window {
+    background: rgba(40, 40, 40, 0.88);
+    border: 2px solid #504945;
+    border-radius: 18px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 16px rgba(29, 32, 33, 0.6);
+}
+
+button {
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    padding: 6px;
+    margin: 2px 4px;
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    background: rgba(250, 189, 47, 0.25);
+    border-bottom: 2px solid #fabd2f;
+}
+
+button:focus {
+    background: rgba(254, 128, 25, 0.3);
+}
+
+/* Active running indicator */
+#active {
+    border-bottom: 3px solid #fabd2f;
+}

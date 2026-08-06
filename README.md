@@ -1,151 +1,90 @@
-# 🌲 Gruvbox Hyprland Desktop Environment
+# 🌲 Gruvbox Hyprland Desktop Environment & Installer
 
-A production-grade, ultra-lightweight, and power-optimized **Hyprland** desktop build styled in the warm **Gruvbox Dark** aesthetic.
-
-![Gruvbox Theme](wallpapers/Retro_Terminal_Workstation.png)
+A complete, production-ready **Gruvbox Dark** desktop environment for **Hyprland** (v0.56.1+ with native **Lua configuration**), featuring macOS-style window controls, Waybar status bar, SwayNC notification center, Rofi application launcher, terminal configurations, power optimizations, and automated installation scripts.
 
 ---
 
-## ⚡ Key Features
+## 🌟 Highlights
 
-- **Compositor**: [Hyprland](https://hyprland.org/) with fluid Bezier window physics, rounded borders, active gradients, and dynamic blur.
-- **Power & Thermal Engine**:
-  - **PCIe ASPM (`powersupersave`)**: Deep link state power gating for NVMe SSDs, network cards, and GPU.
-  - **Hyprpaper**: 0.0% idle CPU native C++ wallpaper daemon with instant IPC controls.
-  - **`syspower`**: Built-in real-time terminal monitor for CPU package, GPU, and motherboard wattage breakdown.
-- **Top Bar (Waybar)**:
-  - Uniform hardware monitoring pills for **CPU** (Load %, Clock speed, Temp), **GPU** (Usage %, Clock, Temp, Power), and **System Total Power** (Watts).
-  - RAM usage, active workspaces, active window title, and network upload/download bandwidth.
-- **Notification & Control Center (SwayNC)**:
-  - Slide-out control panel with volume/brightness sliders, Do Not Disturb, screenshot triggers, lock, and power off.
-- **App Launcher (Rofi-Wayland)**:
-  - Centered fuzzy search with Papirus app icons and keyboard navigation.
-- **Terminal (Kitty)**:
-  - Gruvbox Dark 256-color palette + JetBrains Mono Nerd Font.
-- **Automount Daemon (`udiskie`)**:
-  - Automatically mounts USB thumb drives and secondary internal/external partitions on boot/connection.
+- **Native Lua Architecture**: Configured entirely via `hyprland.lua` using Hyprland's modern Lua API.
+- **macOS Window Controls**: Native titlebar decoration with traffic light buttons via the `hyprbars` plugin:
+  - 🔴 **Red**: Close active window (`killactive`)
+  - 🟡 **Yellow**: Toggle floating / tiled layout (`togglefloating`)
+  - 🟢 **Green**: Maximize / fullscreen (`fullscreen 1`)
+- **Gruvbox Dark Aesthetic**: Handcrafted color palette across Waybar, SwayNC, Rofi, Kitty, Alacritty, Yazi, and Btop.
+- **Dynamic Tiling & Floating**: Clean default dynamic tiling with automatic floating for utility dialogs (`pavucontrol`, `opensnitch`, file choosers).
+- **Power Optimization Suite**: Custom `syspower` utility and PCIe ASPM / CPU EPP energy-saving tuners for AMD APUs / Ryzen systems.
+- **Dynamic Scaling & Wallpapers**: On-the-fly display scale adjustment (<kbd>SUPER</kbd>+<kbd>CTRL</kbd>+<kbd>+</kbd>/<kbd>-</kbd>) and wallpaper rotators with `hyprpaper`.
 
 ---
 
-## 🏗️ Architecture
+## 📁 Repository Layout
 
-```mermaid
-graph TD
-    A[Hyprland Compositor] --> B[Waybar Status Bar]
-    A --> C[SwayNC Control Center]
-    A --> D[Hyprpaper 0% CPU Daemon]
-    A --> E[Hypridle & Hyprlock]
-    A --> F[Kitty + Yazi + Btop / Nvtop]
-    A --> G[Rofi-Wayland App Menu]
-    A --> H[Grim + Slurp + Swappy]
-    A --> I[udiskie Auto-Mounter]
-    A --> J[syspower CLI Power Monitor]
+```
+hyprland-dotfiles/
+├── install.sh                  # Interactive master installer script
+├── setup-power.sh              # AMD APU / CPU power optimization suite
+├── packages.txt                # Comprehensive package dependency manifest
+├── bin/
+│   └── syspower                # Custom real-time power / wattage monitoring CLI
+├── config/
+│   ├── hypr/
+│   │   ├── hyprland.lua        # Primary Hyprland Lua configuration
+│   │   ├── hyprlock.conf       # Lockscreen styling
+│   │   ├── hypridle.conf       # Idle daemon configuration
+│   │   ├── hyprpaper.conf      # Wallpaper daemon configuration
+│   │   └── scripts/            # Shell utilities (autostart, screenshots, scaling, wallpapers)
+│   ├── waybar/                 # Waybar status bar configuration & Gruvbox CSS
+│   ├── swaync/                 # Sway Notification Center configuration & CSS
+│   ├── rofi/                   # Rofi application launcher & Gruvbox theme
+│   ├── kitty/                  # Kitty terminal configuration
+│   ├── alacritty/              # Alacritty terminal configuration
+│   ├── yazi/                   # Yazi terminal file manager configuration
+│   ├── btop/                   # Btop system monitor theme
+│   └── nwg-dock-hyprland/      # Floating dock CSS styling
+├── wallpapers/                 # Curated Gruvbox wallpapers
+└── README.md
 ```
 
 ---
 
-## 🚀 Quick Start & Installation
+## ⌨️ Keybindings
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/<your-username>/hyprland-dotfiles.git ~/hyprland-dotfiles
-cd ~/hyprland-dotfiles
-```
+| Shortcut | Action |
+|---|---|
+| <kbd>SUPER</kbd> + <kbd>Q</kbd> | Open Kitty Terminal |
+| <kbd>SUPER</kbd> + <kbd>SPACE</kbd> / <kbd>SUPER</kbd> + <kbd>R</kbd> | Open Rofi App Launcher |
+| <kbd>SUPER</kbd> + <kbd>E</kbd> | Open Yazi Terminal File Manager |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>E</kbd> | Open Nautilus GUI File Manager |
+| <kbd>SUPER</kbd> + <kbd>B</kbd> | Open Browser |
+| <kbd>SUPER</kbd> + <kbd>Z</kbd> | Open Zed Editor |
+| <kbd>SUPER</kbd> + <kbd>N</kbd> | Toggle SwayNC Notification Center |
+| <kbd>SUPER</kbd> + <kbd>L</kbd> | Lock Screen (`hyprlock`) |
+| <kbd>SUPER</kbd> + <kbd>W</kbd> | Cycle Wallpaper |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>W</kbd> | Open Rofi Wallpaper Selector |
+| <kbd>SUPER</kbd> + <kbd>C</kbd> | Close Active Window |
+| <kbd>SUPER</kbd> + <kbd>V</kbd> | Toggle Floating / Tiled Window |
+| <kbd>SUPER</kbd> + <kbd>F</kbd> | Toggle Fullscreen |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>S</kbd> | Screenshot Area (interactive crop) |
+| <kbd>PRINT</kbd> | Screenshot Full Screen |
+| <kbd>SUPER</kbd> + <kbd>CTRL</kbd> + <kbd>=</kbd> / <kbd>-</kbd> | Adjust Display Scaling (+0.1 / -0.1) |
+| <kbd>SUPER</kbd> + <kbd>1</kbd> .. <kbd>0</kbd> | Switch Workspace 1 - 10 |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>1</kbd> .. <kbd>0</kbd> | Move Window to Workspace 1 - 10 |
 
-### 2. Run the Interactive Installer
+---
+
+## 🚀 Installation
+
+Run the interactive installer to set up packages, configurations, plugins, and wallpapers:
+
 ```bash
+git clone https://github.com/<your-username>/hyprland-dotfiles.git
+cd hyprland-dotfiles
 chmod +x install.sh setup-power.sh
 ./install.sh
 ```
 
-The installer will:
-1. Detect your package manager (`yay`, `paru`, or `pacman`).
-2. Create an automatic timestamped backup of your existing configs (`~/.config/hyprland_backup_*`).
-3. Deploy all configuration files into `~/.config/`.
-4. Install `syspower` into `~/.local/bin/`.
-5. Deploy wallpapers to `~/Pictures/Wallpapers/`.
-6. Configure low-power PCIe ASPM and CPU energy states.
-
----
-
-## ⌨️ Keybindings Cheat Sheet
-
-### 🚀 Applications
-| Shortcut | Action |
-| :--- | :--- |
-| <kbd>SUPER</kbd> + <kbd>Q</kbd> | Launch **Kitty** Terminal |
-| <kbd>SUPER</kbd> + <kbd>Space</kbd> / <kbd>SUPER</kbd> + <kbd>R</kbd> | Open **Rofi** App Launcher |
-| <kbd>SUPER</kbd> + <kbd>E</kbd> | Open **Yazi** File Manager (Terminal) |
-| <kbd>SUPER</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd> | Open **Nautilus** (GUI File Manager) |
-| <kbd>SUPER</kbd> + <kbd>N</kbd> | Toggle **SwayNC** Notification Center |
-| <kbd>SUPER</kbd> + <kbd>L</kbd> | Lock Screen with **Hyprlock** |
-| <kbd>SUPER</kbd> + <kbd>W</kbd> | Randomize / Switch Wallpaper |
-| <kbd>SUPER</kbd> + <kbd>B</kbd> | Open Web Browser |
-
-### 🪟 Window Management
-| Shortcut | Action |
-| :--- | :--- |
-| <kbd>SUPER</kbd> + <kbd>C</kbd> | Close active window |
-| <kbd>SUPER</kbd> + <kbd>V</kbd> | Toggle floating mode |
-| <kbd>SUPER</kbd> + <kbd>F</kbd> | Toggle fullscreen |
-| <kbd>SUPER</kbd> + <kbd>P</kbd> | Toggle pseudo tiling |
-| <kbd>SUPER</kbd> + <kbd>J</kbd> | Toggle split orientation |
-| <kbd>SUPER</kbd> + <kbd>H/J/K/L</kbd> or <kbd>Arrows</kbd> | Focus window in direction |
-| <kbd>SUPER</kbd> + <kbd>Shift</kbd> + <kbd>H/J/K/L</kbd> | Move window in direction |
-| <kbd>SUPER</kbd> + <kbd>Left Mouse Click & Drag</kbd> | Move window |
-| <kbd>SUPER</kbd> + <kbd>Right Mouse Click & Drag</kbd> | Resize window |
-
-### 🔢 Workspaces
-| Shortcut | Action |
-| :--- | :--- |
-| <kbd>SUPER</kbd> + <kbd>1..0</kbd> | Switch to workspace 1–10 |
-| <kbd>SUPER</kbd> + <kbd>Shift</kbd> + <kbd>1..0</kbd> | Move active window to workspace 1–10 |
-| <kbd>SUPER</kbd> + <kbd>S</kbd> | Toggle scratchpad (Magic workspace) |
-| <kbd>SUPER</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd> | Move active window to scratchpad |
-
-### 📸 Screenshots
-| Shortcut | Action |
-| :--- | :--- |
-| <kbd>SUPER</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> | Select area to clipboard & save |
-| <kbd>Print</kbd> | Full screen capture to clipboard & save |
-| <kbd>SUPER</kbd> + <kbd>Print</kbd> | Interactive screenshot annotation (**Swappy**) |
-
----
-
-## ⚡ Power Optimization Tools
-
-Check live power draw directly in your terminal:
-```bash
-# Instant snapshot
-syspower
-
-# Continuous live monitoring (updates every second)
-syspower -w
-```
-
-Apply system-wide PCIe ASPM low-power states:
-```bash
-sudo ./setup-power.sh
-```
-
----
-
-## 📂 Repository Structure
-
-```text
-hyprland-dotfiles/
-├── install.sh                     # Interactive master installer
-├── setup-power.sh                 # Linux PCIe ASPM & CPU power tuning script
-├── packages.txt                   # Manifest of Arch / CachyOS packages
-├── README.md                      # Documentation & cheat sheets
-├── bin/
-│   └── syspower                   # Real-time terminal power monitor
-├── config/
-│   ├── hypr/                      # Hyprland, Hyprlock, Hypridle, Hyprpaper
-│   ├── waybar/                    # Waybar config, style, and monitor scripts
-│   ├── swaync/                    # SwayNC notification center & widget panel
-│   ├── rofi/                      # Rofi launcher & Gruvbox theme
-│   ├── kitty/                     # Kitty terminal configuration
-│   └── btop/                      # btop resource monitor configuration
-└── wallpapers/                    # Curated Gruvbox & Retro Terminal wallpapers
-```
+### Installation Options:
+1. **Full Installation**: Installs all required packages via `pacman`/`yay`, backs up existing configs, deploys configurations & wallpapers, configures the `hyprbars` plugin, and applies power optimizations.
+2. **Configs & Wallpapers Only**: Safe mode that only backs up and deploys dotfiles without touching system packages.
+3. **Power Optimizations Only**: Tunes PCIe ASPM and CPU energy performance policies.

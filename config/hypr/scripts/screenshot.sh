@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Screenshot Helper for Hyprland using grim, slurp, swappy & wl-copy
+# Screenshot helper for Hyprland using grim, slurp, swappy & wl-copy
 DIR="$HOME/Pictures/Screenshots"
 mkdir -p "$DIR"
 
@@ -11,11 +11,11 @@ mode="$1"
 
 case "$mode" in
     area)
-        # Interactive selection
+        # Select an area or window
         GEOM=$(slurp)
         if [ -n "$GEOM" ]; then
             grim -g "$GEOM" - | tee "$FILENAME" | wl-copy --type image/png
-            notify-send "Screenshot Taken" "Area screenshot saved & copied to clipboard" -i "$FILENAME"
+            notify-send "Screenshot Taken" "Area screenshot copied to clipboard and saved to $FILENAME" -i "$FILENAME"
         fi
         ;;
     edit)
@@ -26,9 +26,9 @@ case "$mode" in
         fi
         ;;
     full|*)
-        # Full screen capture
+        # Full screen screenshot
         grim "$FILENAME"
         wl-copy --type image/png < "$FILENAME"
-        notify-send "Screenshot Taken" "Fullscreen capture saved & copied to clipboard" -i "$FILENAME"
+        notify-send "Screenshot Taken" "Fullscreen capture saved to $FILENAME & copied to clipboard" -i "$FILENAME"
         ;;
 esac

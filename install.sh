@@ -30,7 +30,7 @@ print_banner() {
   ██╔══╝  ██╔══██╗██║   ██║╚██╗ ██╔╝██╔══██╗██║   ██║ ██╔██╗ 
   ███████╗██║  ██║╚██████╔╝ ╚████╔╝ ██████╔╝╚██████╔╝██╔╝ ██╗
   ╚══════╝╚═╝  ╚═╝ ╚═════╝   ╚═══╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
-             HYPRLAND DESKTOP ENVIRONMENT INSTALLER
+             HYPRLAND DESKTOP ENVIRONMENT INSTALLER (LUA)
 EOF
     echo -e "${RESET}"
     echo -e "${CYAN}----------------------------------------------------------------------${RESET}"
@@ -79,7 +79,7 @@ backup_existing() {
     info "Backing up current configurations to ${BACKUP_DIR}..."
     mkdir -p "$BACKUP_DIR"
 
-    for app in hypr waybar swaync rofi kitty btop; do
+    for app in hypr waybar swaync rofi kitty alacritty yazi btop nwg-dock-hyprland; do
         if [ -d "$HOME/.config/$app" ] || [ -f "$HOME/.config/$app" ]; then
             cp -r "$HOME/.config/$app" "$BACKUP_DIR/"
             success "Backed up ~/.config/$app"
@@ -101,13 +101,31 @@ deploy_configs() {
         success "Deployed ~/.config/$app_name"
     done
 
+    # Remove any existing legacy hyprland.conf to ensure Hyprland boots into native Lua mode
+    if [ -f "$HOME/.config/hypr/hyprland.conf" ]; then
+        warn "Removing legacy ~/.config/hypr/hyprland.conf to enforce hyprland.lua..."
+        rm -f "$HOME/.config/hypr/hyprland.conf"
+    fi
+
     # Ensure scripts have execute permissions
     chmod +x "$HOME"/.config/hypr/scripts/*.sh 2>/dev/null || true
     chmod +x "$HOME"/.config/waybar/scripts/*.sh 2>/dev/null || true
     success "Config scripts set as executable."
 }
 
-# 5. Deploy Binaries & CLI Tools
+# 5. Build and Enable Hyprland Plugins (hyprbars)
+install_plugins() {
+    if command -v hyprpm >/dev/null 2>&1; then
+        info "Configuring hyprbars plugin via hyprpm..."
+        hyprpm update || true
+        hyprpm add https://github.com/hyprwm/hyprland-plugins 2>/dev/null || true
+        hyprpm enable hyprbars 2>/dev/null || true
+        hyprpm reload 2>/dev/null || true
+        success "hyprbars plugin configured."
+    fi
+}
+
+# 6. Deploy Binaries & CLI Tools
 deploy_binaries() {
     info "Installing syspower and custom CLI utilities to ~/.local/bin/..."
     mkdir -p "$HOME/.local/bin"
@@ -118,7 +136,7 @@ deploy_binaries() {
     fi
 }
 
-# 6. Deploy Wallpapers
+# 7. Deploy Wallpapers
 deploy_wallpapers() {
     info "Deploying wallpapers to ~/Pictures/Wallpapers/..."
     mkdir -p "$HOME/Pictures/Wallpapers"
@@ -128,7 +146,7 @@ deploy_wallpapers() {
     fi
 }
 
-# 7. Apply Power Optimizations
+# 8. Apply Power Optimizations
 apply_power_tweaks() {
     if [ -f "$DOTFILES_DIR/setup-power.sh" ]; then
         info "Running power optimization suite (PCIe ASPM, CPU EPP)..."
@@ -141,7 +159,7 @@ main() {
     print_banner
 
     echo -e "${BOLD}Select installation mode:${RESET}"
-    echo -e "  ${GREEN}1)${RESET} Full Installation (Packages + Configs + Wallpapers + Power Optimizations)"
+    echo -e "  ${GREEN}1)${RESET} Full Installation (Packages + Configs + Plugins + Wallpapers + Power)"
     echo -e "  ${GREEN}2)${RESET} Configs & Wallpapers Only (No package manager calls)"
     echo -e "  ${GREEN}3)${RESET} Power Optimizations Only"
     echo -e "  ${GREEN}4)${RESET} Exit"
@@ -154,6 +172,7 @@ main() {
             backup_existing
             install_packages
             deploy_configs
+            install_plugins
             deploy_binaries
             deploy_wallpapers
             apply_power_tweaks
@@ -161,6 +180,7 @@ main() {
         2)
             backup_existing
             deploy_configs
+            install_plugins
             deploy_binaries
             deploy_wallpapers
             ;;
@@ -181,10 +201,9 @@ main() {
     echo -e "${CYAN}----------------------------------------------------------------------${RESET}"
     echo -e "${GREEN}${BOLD}🎉 Installation Complete!${RESET}"
     echo -e "${BOLD}To apply the changes:${RESET}"
-    echo -e "  - Reload Hyprland: ${CYAN}hyprctl reload${RESET}"
-    echo -e "  - Restart Waybar:  ${CYAN}killall waybar && waybar &${RESET}"
-    echo -e "  - Switch Wallpaper: ${CYAN}~/.config/hypr/scripts/wallpaper.sh${RESET}"
-    echo -e "  - Check Power:      ${CYAN}syspower -w${RESET}"
+    echo -e "  - Reload / Restart Hyprland: ${CYAN}hyprctl dispatch exit${RESET}"
+    echo -e "  - Switch Wallpaper:          ${CYAN}~/.config/hypr/scripts/wallpaper.sh${RESET}"
+    echo -e "  - Check System Power:        ${CYAN}syspower -w${RESET}"
     echo -e "${CYAN}----------------------------------------------------------------------${RESET}"
 }
 

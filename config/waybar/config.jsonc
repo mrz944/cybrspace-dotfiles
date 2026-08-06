@@ -74,7 +74,7 @@
     "custom/cpu_stat": {
         "interval": 2,
         "return-type": "json",
-        "exec": "$HOME/.config/waybar/scripts/cpu_stat.sh",
+        "exec": "/home/cyberdev/.config/waybar/scripts/cpu_stat.sh",
         "format": "{}",
         "tooltip": true,
         "escape": false
@@ -83,7 +83,7 @@
     "custom/gpu": {
         "interval": 2,
         "return-type": "json",
-        "exec": "$HOME/.config/waybar/scripts/gpu.sh",
+        "exec": "/home/cyberdev/.config/waybar/scripts/gpu.sh",
         "format": "{}",
         "tooltip": true,
         "escape": false
@@ -92,7 +92,7 @@
     "custom/power": {
         "interval": 3,
         "return-type": "json",
-        "exec": "$HOME/.config/waybar/scripts/power.sh",
+        "exec": "/home/cyberdev/.config/waybar/scripts/power.sh",
         "format": "{}",
         "tooltip": true,
         "escape": false
