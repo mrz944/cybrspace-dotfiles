@@ -1,0 +1,16 @@
+configuration {
+    modi: "drun,run,filebrowser,window";
+    font: "JetBrainsMono Nerd Font 11";
+    show-icons: true;
+    icon-theme: "Papirus";
+    display-drun: "󰀻  Apps";
+    display-run: "  Run";
+    display-filebrowser: "󰉋  Files";
+    display-window: "󱂬  Window";
+    drun-display-format: "{name}";
+    hover-select: true;
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+}
+
+@theme "~/.config/rofi/gruvbox.rasi"

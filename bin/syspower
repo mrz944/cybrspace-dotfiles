@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+# Real-time System Power & Thermal CLI Monitor
+
+# Colors
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+CYAN="\033[1;36m"
+BOLD="\033[1m"
+RESET="\033[0m"
+
+get_power() {
+    # 1. GPU Power (sysfs)
+    GPU_POWER_W=0
+    for p in /sys/class/drm/card*/device/hwmon/hwmon*/power1_average /sys/class/drm/card*/device/hwmon/hwmon*/power1_input; do
+        if [ -r "$p" ]; then
+            UW=$(cat "$p" 2>/dev/null)
+            if [ -n "$UW" ] && [ "$UW" -gt 0 ]; then
+                GPU_POWER_W=$((UW / 1000000))
+                break
+            fi
+        fi
+    done
+
+    # 2. CPU / System Load Estimation
+    CPU_IDLE=100
+    if [ -r /proc/stat ]; then
+        read -r _ c_user c_nice c_sys c_idle c_iowait c_irq c_softirq _ < /proc/stat
+        total=$((c_user + c_nice + c_sys + c_idle + c_iowait + c_irq + c_softirq))
+        
+        if [ -f /dev/shm/syspower_cpu_prev ]; then
+            read -r p_total p_idle < /dev/shm/syspower_cpu_prev
+            d_total=$((total - p_total))
+            d_idle=$((c_idle - p_idle))
+            if [ "$d_total" -gt 0 ]; then
+                CPU_IDLE=$(( (d_idle * 100) / d_total ))
+            fi
+        fi
+        echo "$total $c_idle" > /dev/shm/syspower_cpu_prev
+    fi
+    CPU_USAGE=$((100 - CPU_IDLE))
+
+    # Calculate estimates
+    CPU_POWER_W=$(( 18 + (CPU_USAGE * 47) / 100 ))
+    [ "$GPU_POWER_W" -eq 0 ] && GPU_POWER_W=12
+    BASE_BOARD_W=15
+    TOTAL_W=$(( GPU_POWER_W + CPU_POWER_W + BASE_BOARD_W ))
+
+    # Temps
+    CPU_TEMP="N/A"
+    for t in /sys/class/hwmon/hwmon*/temp*_input; do
+        NAME=$(cat "$(dirname "$t")/name" 2>/dev/null)
+        if [ "$NAME" = "k10temp" ] || [ "$NAME" = "zenpower" ]; then
+            VAL=$(cat "$t" 2>/dev/null)
+            if [ -n "$VAL" ]; then
+                CPU_TEMP="$((VAL / 1000))°C"
+                break
+            fi
+        fi
+    done
+
+    GPU_TEMP="N/A"
+    for t in /sys/class/drm/card*/device/hwmon/hwmon*/temp1_input; do
+        if [ -r "$t" ]; then
+            VAL=$(cat "$t" 2>/dev/null)
+            if [ -n "$VAL" ]; then
+                GPU_TEMP="$((VAL / 1000))°C"
+                break
+            fi
+        fi
+    done
+
+    echo -e "${BOLD}${YELLOW}⚡ SYSTEM TOTAL POWER:${RESET} ${GREEN}${TOTAL_W} W${RESET}"
+    echo -e "   ├── ${CYAN}CPU Package${RESET}      : ~${CPU_POWER_W} W  (${CPU_TEMP}, ${CPU_USAGE}% load)"
+    echo -e "   ├── ${CYAN}GPU (Phoenix)${RESET}    : ~${GPU_POWER_W} W  (${GPU_TEMP})"
+    echo -e "   └── ${CYAN}Motherboard + RAM${RESET}: ~${BASE_BOARD_W} W  (Chipset + 3× NVMe)"
+}
+
+if [ "$1" = "-w" ] || [ "$1" = "--watch" ]; then
+    watch -n 1 -c "$0"
+else
+    get_power
+fi

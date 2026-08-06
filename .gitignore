@@ -1,0 +1,9 @@
+# Git ignore rules for hyprland-dotfiles
+.DS_Store
+*.log
+*.swp
+*.bak
+*~
+/scratch/
+/cache/
+__pycache__/

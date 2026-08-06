@@ -1,0 +1,45 @@
+# ==============================================================================
+# Hyprland Gruvbox Desktop Environment - Package Manifest
+# ==============================================================================
+
+# Core Compositor & Hyprland Ecosystem
+hyprland
+hyprpaper
+hyprlock
+hypridle
+hyprpolkitagent
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+
+# Status Bar, Notifications & App Menu
+waybar
+swaync
+rofi-wayland
+
+# Terminal & CLI Utilities
+kitty
+yazi
+btop
+nvtop
+pavucontrol
+brightnessctl
+playerctl
+cliphist
+wl-clipboard
+udiskie
+
+# Screenshot & Visual Utilities
+grim
+slurp
+swappy
+imagemagick
+
+# Fonts & Theming
+ttf-jetbrains-mono-nerd
+papirus-icon-theme
+qt6ct
+qt5ct
+
+# Hardware & Power Monitoring
+lm_sensors
+cpupower

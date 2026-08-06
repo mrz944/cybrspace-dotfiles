@@ -1,0 +1,149 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 34,
+    "spacing": 5,
+    "margin-top": 5,
+    "margin-left": 12,
+    "margin-right": 12,
+
+    "modules-left": [
+        "hyprland/workspaces",
+        "hyprland/window"
+    ],
+
+    "modules-center": [
+        "clock"
+    ],
+
+    "modules-right": [
+        "network",
+        "custom/cpu_stat",
+        "custom/gpu",
+        "custom/power",
+        "memory",
+        "pulseaudio",
+        "tray",
+        "custom/notification"
+    ],
+
+    "hyprland/workspaces": {
+        "disable-scroll": false,
+        "all-outputs": true,
+        "format": "<span font='15px'>{name}</span>",
+        "on-click": "activate"
+    },
+
+    "hyprland/window": {
+        "format": "<span font='16px'>󰘔</span>  {}",
+        "max-length": 32,
+        "separate-outputs": true
+    },
+
+    "clock": {
+        "interval": 1,
+        "format": "<span font='16.5px'></span>  {:%H:%M:%S}",
+        "format-alt": "<span font='16.5px'>󰃭</span>  {:%A, %B %d, %Y}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "month",
+            "mode-mon-col": 3,
+            "weeks-pos": "right",
+            "on-scroll": 1,
+            "format": {
+                "months": "<span color='#fabd2f'><b>{}</b></span>",
+                "days": "<span color='#ebdbb2'><b>{}</b></span>",
+                "weeks": "<span color='#83a598'><b>W{}</b></span>",
+                "weekdays": "<span color='#fe8019'><b>{}</b></span>",
+                "today": "<span color='#fb4934'><b><u>{}</u></b></span>"
+            }
+        }
+    },
+
+    "network": {
+        "interval": 2,
+        "format-wifi": "<span font='16px'></span> {signalStrength}%  <span font='14.5px'>󰕒</span> {bandwidthUpBits} <span font='14.5px'>󰇚</span> {bandwidthDownBits}",
+        "format-ethernet": "<span font='16px'>󰈀</span>  <span font='14.5px'>󰕒</span> {bandwidthUpBits} <span font='14.5px'>󰇚</span> {bandwidthDownBits}",
+        "format-linked": "<span font='16px'>󰈀</span> {ifname} (No IP)",
+        "format-disconnected": "<span font='16px'>󰤮</span> Offline",
+        "tooltip-format": "Interface: {ifname}\nIP: {ipaddr}/{cidr}\nGateway: {gwaddr}\n↑ {bandwidthUpBytes} | ↓ {bandwidthDownBytes}",
+        "tooltip-format-wifi": "SSID: {essid} ({signalStrength}%)\nInterface: {ifname}\nIP: {ipaddr}/{cidr}\n↑ {bandwidthUpBytes} | ↓ {bandwidthDownBytes}",
+        "on-click": "kitty -e nmtui"
+    },
+
+    "custom/cpu_stat": {
+        "interval": 2,
+        "return-type": "json",
+        "exec": "$HOME/.config/waybar/scripts/cpu_stat.sh",
+        "format": "{}",
+        "tooltip": true,
+        "escape": false
+    },
+
+    "custom/gpu": {
+        "interval": 2,
+        "return-type": "json",
+        "exec": "$HOME/.config/waybar/scripts/gpu.sh",
+        "format": "{}",
+        "tooltip": true,
+        "escape": false
+    },
+
+    "custom/power": {
+        "interval": 3,
+        "return-type": "json",
+        "exec": "$HOME/.config/waybar/scripts/power.sh",
+        "format": "{}",
+        "tooltip": true,
+        "escape": false
+    },
+
+    "memory": {
+        "interval": 2,
+        "format": "<span font='16.5px'>󰘚</span>  {used:0.1f}G/{total:0.1f}G",
+        "tooltip-format": "RAM: {used:0.2f}GiB / {total:0.2f}GiB ({percentage}%)\nSwap: {swapUsed:0.2f}GiB / {swapTotal:0.2f}GiB ({swapPercentage}%)"
+    },
+
+    "pulseaudio": {
+        "format": "<span font='16.5px'>{icon}</span>  {volume}%",
+        "format-muted": "<span font='16.5px'>󰝟</span>  Muted",
+        "format-icons": {
+            "headphone": "󰋋",
+            "hands-free": "󰋎",
+            "headset": "󰋎",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "on-click": "pavucontrol",
+        "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "scroll-step": 5
+    },
+
+    "tray": {
+        "icon-size": 22,
+        "spacing": 10
+    },
+
+    "custom/notification": {
+        "tooltip": false,
+        "format": "<span font='17.5px'>{icon}</span>",
+        "format-icons": {
+            "notification": "󱅫",
+            "none": "󰂚",
+            "dnd-notification": "󱅫",
+            "dnd-none": "󰂛",
+            "inhibited-notification": "󱅫",
+            "inhibited-none": "󰂚",
+            "dnd-inhibited-notification": "󱅫",
+            "dnd-inhibited-none": "󰂛"
+        },
+        "return-type": "json",
+        "exec-if": "which swaync-client",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": false
+    }
+}
