@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
 # CYBRSPACE - HDMI Monitor Brightness via DDC/CI (VCP code 10)
-# Responsive daemon design:
-#   - on-scroll-up/down  -> accumulate delta into /tmp file (instant, no I2C)
-#   - daemon (no args)   -> applies accumulated delta, instantly updates UI, then syncs hardware
+# Architecture:
+#   - on-scroll-up/down  -> writes delta to ADJ_FILE (instant, 0ms)
+#   - daemon UI loop     -> polls every 30ms, emits JSON to waybar instantly
+#   - hw_sync_loop       -> background process, applies queued value over I2C
 
 STEP=5
 MIN=5
@@ -12,6 +13,7 @@ ICON="󰛨"
 ADJ_FILE="/tmp/.monitor_brightness_adj"
 CACHE_FILE="/tmp/.monitor_brightness_cache"
 LOCK_FILE="/tmp/.monitor_brightness.lock"
+HW_PIPE="/tmp/.monitor_brightness_hw"
 
 clamp() {
     local v=$1
@@ -20,75 +22,74 @@ clamp() {
     echo "$v"
 }
 
-get_value() {
-    ddcutil getvcp 10 --terse 2>/dev/null | awk '{print $4}'
-}
-
 emit() {
     local val="$1"
     if [ -z "$val" ] || [ "$val" -lt 0 ] 2>/dev/null; then
-        echo "{\"text\": \"${ICON} --\", \"tooltip\": \"<b>Monitor Brightness:</b> unavailable\\nDDC/CI not responding\", \"percentage\": 0, \"class\": \"monitor\"}"
+        printf '{"text": "%s --", "tooltip": "<b>Monitor Brightness:</b> unavailable", "percentage": 0, "class": "monitor"}\n' "$ICON"
         return
     fi
     [ "$val" -gt 100 ] && val=100
-    local tooltip="<b>LG HDR 4K Brightness:</b> ${val}%\\n\\nScroll to adjust | Click to open DDC panel"
-    echo "{\"text\": \"${ICON} ${val}%\", \"tooltip\": \"${tooltip}\", \"percentage\": ${val}, \"class\": \"monitor\"}"
-    # Flush stdout so Waybar picks it up instantly
-    echo -n "" 
+    printf '{"text": "%s %s%%", "tooltip": "<b>LG HDR 4K Brightness:</b> %s%%\\n\\nScroll to adjust", "percentage": %s, "class": "monitor"}\n' "$ICON" "$val" "$val" "$val"
 }
 
 accumulate() {
-    local delta="$1"
     (
         flock -x 9
         local cur=0
         [ -f "$ADJ_FILE" ] && cur=$(cat "$ADJ_FILE" 2>/dev/null || echo 0)
-        echo $((cur + delta)) > "$ADJ_FILE"
+        echo $((cur + $1)) > "$ADJ_FILE"
     ) 9>"$LOCK_FILE"
 }
 
 drain_adj() {
+    flock -x 9 9>"$LOCK_FILE"
     local adj=0
-    (
-        flock -x 9
-        [ -f "$ADJ_FILE" ] && adj=$(cat "$ADJ_FILE" 2>/dev/null || echo 0)
-        if [ "$adj" -ne 0 ] 2>/dev/null; then
-            echo 0 > "$ADJ_FILE"
+    [ -f "$ADJ_FILE" ] && adj=$(cat "$ADJ_FILE" 2>/dev/null || echo 0)
+    [ "$adj" -ne 0 ] 2>/dev/null && echo 0 > "$ADJ_FILE"
+    flock -u 9
+    echo "$adj"
+}
+
+hw_sync_loop() {
+    local last_sent=-1
+    while true; do
+        if [ -f "$HW_PIPE" ]; then
+            local target
+            target=$(cat "$HW_PIPE" 2>/dev/null)
+            rm -f "$HW_PIPE"
+            if [ -n "$target" ] && [ "$target" != "$last_sent" ] 2>/dev/null; then
+                ddcutil setvcp 10 "$target" --noverify >/dev/null 2>&1
+                last_sent="$target"
+            fi
         fi
-        echo "$adj"
-    ) 9>"$LOCK_FILE"
+        sleep 0.15
+    done
 }
 
 daemon() {
     echo 0 > "$ADJ_FILE"
-    # 1. Initial slow read on startup
-    val=$(get_value)
-    if [ -n "$val" ] && [ "$val" -ge 0 ] 2>/dev/null; then
-        echo "$val" > "$CACHE_FILE"
-    else
-        echo 50 > "$CACHE_FILE"
-    fi
+    rm -f "$HW_PIPE"
+
+    local val
+    val=$(ddcutil getvcp 10 --terse 2>/dev/null | awk '{print $4}')
+    [ -z "$val" ] && val=50
+    echo "$val" > "$CACHE_FILE"
     emit "$val"
-    
-    # 2. Fast UI response loop
+
+    hw_sync_loop &
+    local hw_pid=$!
+    trap "kill $hw_pid 2>/dev/null; exit 0" EXIT INT TERM
+
     while true; do
         adj=$(drain_adj)
         if [ -n "$adj" ] && [ "$adj" -ne 0 ] 2>/dev/null; then
             cur=$(cat "$CACHE_FILE" 2>/dev/null || echo 50)
             new=$(clamp $((cur + adj)))
             echo "$new" > "$CACHE_FILE"
-            
-            # --- INSTANT UI UPDATE ---
-            # Spit out the UI JSON before we even talk to the I2C bus device.
             emit "$new"
-            
-            # --- HARDWARE SYNC ---
-            # Wait for the monitor to catch up. 
-            # Doing this synchronously means we drop intermediate I2C packets 
-            # if user spins the scroll wheel super fast, which is perfectly safe.
-            ddcutil setvcp 10 "$new" >/dev/null 2>&1
+            echo "$new" > "$HW_PIPE"
         fi
-        sleep 0.05
+        sleep 0.03
     done
 }
 
