@@ -43,3 +43,4 @@ qt5ct
 # Hardware & Power Monitoring
 lm_sensors
 cpupower
+ddcutil

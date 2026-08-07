@@ -50,6 +50,7 @@ tooltip label {
 #custom-cpu_stat,
 #custom-gpu,
 #custom-power,
+#custom-monitor,
 #memory,
 #pulseaudio,
 #tray,
@@ -68,6 +69,7 @@ tooltip label {
 #custom-cpu_stat:hover,
 #custom-gpu:hover,
 #custom-power:hover,
+#custom-monitor:hover,
 #memory:hover,
 #pulseaudio:hover,
 #clock:hover,
@@ -141,6 +143,12 @@ tooltip label {
 #custom-power {
     color: @yellow;
     border-color: rgba(250, 189, 47, 0.4);
+}
+
+/* HDMI Monitor Brightness Pill */
+#custom-monitor {
+    color: @aqua;
+    border-color: rgba(142, 192, 124, 0.4);
 }
 
 /* Memory (RAM/Swap) */
