@@ -11,6 +11,10 @@ MIN=5
 MAX=100
 ICON="󰛨"
 
+LOCK_FILE="/tmp/.monitor_brightness.lock"
+exec 9>"$LOCK_FILE"
+flock -n 9 || exit 0
+
 get_value() {
     ddcutil getvcp 10 --terse 2>/dev/null | awk '{print $4}'
 }
