@@ -3,13 +3,14 @@
 # CYBRSPACE - HDMI Monitor Brightness via DDC/CI (VCP code 10)
 # Responsive daemon design:
 #   - on-scroll-up/down  -> accumulate delta into /tmp file (instant, no I2C)
-#   - daemon (no args)   -> applies accumulated delta in one I2C op, ~every 80ms
+#   - daemon (no args)   -> applies accumulated delta, instantly updates UI, then syncs hardware
 
 STEP=5
 MIN=5
 MAX=100
 ICON="󰛨"
 ADJ_FILE="/tmp/.monitor_brightness_adj"
+CACHE_FILE="/tmp/.monitor_brightness_cache"
 LOCK_FILE="/tmp/.monitor_brightness.lock"
 
 clamp() {
@@ -32,6 +33,8 @@ emit() {
     [ "$val" -gt 100 ] && val=100
     local tooltip="<b>LG HDR 4K Brightness:</b> ${val}%\\n\\nScroll to adjust | Click to open DDC panel"
     echo "{\"text\": \"${ICON} ${val}%\", \"tooltip\": \"${tooltip}\", \"percentage\": ${val}, \"class\": \"monitor\"}"
+    # Flush stdout so Waybar picks it up instantly
+    echo -n "" 
 }
 
 accumulate() {
@@ -58,18 +61,34 @@ drain_adj() {
 
 daemon() {
     echo 0 > "$ADJ_FILE"
-    emit "$(get_value)"
+    # 1. Initial slow read on startup
+    val=$(get_value)
+    if [ -n "$val" ] && [ "$val" -ge 0 ] 2>/dev/null; then
+        echo "$val" > "$CACHE_FILE"
+    else
+        echo 50 > "$CACHE_FILE"
+    fi
+    emit "$val"
+    
+    # 2. Fast UI response loop
     while true; do
         adj=$(drain_adj)
         if [ -n "$adj" ] && [ "$adj" -ne 0 ] 2>/dev/null; then
-            val=$(get_value)
-            if [ -n "$val" ] && [ "$val" -ge 0 ] 2>/dev/null; then
-                new=$(clamp $((val + adj)))
-                ddcutil setvcp 10 "$new" >/dev/null 2>&1
-                emit "$new"
-            fi
+            cur=$(cat "$CACHE_FILE" 2>/dev/null || echo 50)
+            new=$(clamp $((cur + adj)))
+            echo "$new" > "$CACHE_FILE"
+            
+            # --- INSTANT UI UPDATE ---
+            # Spit out the UI JSON before we even talk to the I2C bus device.
+            emit "$new"
+            
+            # --- HARDWARE SYNC ---
+            # Wait for the monitor to catch up. 
+            # Doing this synchronously means we drop intermediate I2C packets 
+            # if user spins the scroll wheel super fast, which is perfectly safe.
+            ddcutil setvcp 10 "$new" >/dev/null 2>&1
         fi
-        sleep 0.08
+        sleep 0.05
     done
 }
 
