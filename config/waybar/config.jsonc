@@ -21,8 +21,8 @@
         "custom/cpu_stat",
         "custom/gpu",
         "custom/power",
-        "custom/monitor",
         "memory",
+        "custom/monitor",
         "pulseaudio",
         "tray",
         "custom/notification"
@@ -100,12 +100,12 @@
     },
 
     "custom/monitor": {
-        "interval": 5,
         "return-type": "json",
         "exec": "/home/cyberdev/.config/waybar/scripts/monitor_brightness.sh",
         "format": "{}",
         "tooltip": true,
         "escape": false,
+        "exec-on-event": false,
         "on-scroll-up": "/home/cyberdev/.config/waybar/scripts/monitor_brightness.sh up",
         "on-scroll-down": "/home/cyberdev/.config/waybar/scripts/monitor_brightness.sh down",
         "on-click": "ddcui"
